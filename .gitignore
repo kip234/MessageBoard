@@ -1,4 +1,5 @@
 #GOLand
 .*
+*.html
 
 !.gitignore
