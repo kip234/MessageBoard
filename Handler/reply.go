@@ -1,13 +1,12 @@
 package Handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"net/http"
 	"MessageBoard/Model"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func Reply(db *gorm.DB) gin.HandlerFunc {
+func Reply(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context){
 		var reply Model.Message
 		err := c.ShouldBind(&reply)
@@ -19,7 +18,14 @@ func Reply(db *gorm.DB) gin.HandlerFunc {
 			})
 			return
 		} else {
-			Model.Save(&reply,db)
+			//获取用户ID
+			Uid,isExist:=c.Get("Uid")
+			if !isExist{//不存在
+				c.Redirect(http.StatusMovedPermanently,"/login")
+				return
+			}
+			reply.Uid=Uid.(int)
+			reply.Save(db)
 			tmp:=Model.GetContent(db)
 			c.JSON(http.StatusOK, &tmp)
 		}

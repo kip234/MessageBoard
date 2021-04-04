@@ -1,13 +1,12 @@
 package Handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"net/http"
 	"MessageBoard/Model"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func Publish(db *gorm.DB) gin.HandlerFunc {
+func Publish(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context){
 		var speech Model.Message
 		//:=c.PostForm("Content")
@@ -20,7 +19,19 @@ func Publish(db *gorm.DB) gin.HandlerFunc {
 			})
 			return
 		} else {
-			if tmp:=Model.Save(&speech,db);tmp!=nil{
+			//获取用户ID
+			Uid,isExist:=c.Get("Uid")
+			if !isExist{//不存在
+				c.JSON(http.StatusOK,gin.H{
+					"method":"GET",
+					"router":"publish",
+					"isExist":"isExist",
+				})
+				//c.Redirect(http.StatusMovedPermanently,"/login")
+				return
+			}
+			speech.Uid=Uid.(int)
+			if tmp:=speech.Save(db);tmp!=nil{
 				c.JSON(http.StatusBadRequest, gin.H{
 					"method":  "POST",
 					"routing": "publish",
@@ -29,6 +40,7 @@ func Publish(db *gorm.DB) gin.HandlerFunc {
 				return
 			}
 		}
+
 		tmp:=Model.GetContent(db)
 		c.JSON(http.StatusOK,&tmp)
 	}

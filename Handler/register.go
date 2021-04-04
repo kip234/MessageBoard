@@ -2,13 +2,12 @@
 package Handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"net/http"
 	"MessageBoard/Model"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func Register(db *gorm.DB) gin.HandlerFunc {
+func Register(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user Model.User
 		err:=c.ShouldBind(&user)
@@ -19,11 +18,11 @@ func Register(db *gorm.DB) gin.HandlerFunc {
 				"Error":err.Error(),
 			})
 		}else {
-			if tmp:=db.Create(&user);tmp.Error!=nil{//存入数据库出错
+			if err:=user.Save(db);err!=nil{//存入数据库出错
 				c.JSON(http.StatusBadRequest,gin.H{
 					"method":  "POST",
 					"routing": "register",
-					"Error":tmp.Error.Error(),
+					"Error":err.Error(),
 				})
 			}else{
 				c.JSON(http.StatusOK,gin.H{

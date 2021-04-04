@@ -1,3 +1,7 @@
+> 前情提要：由于某次阶段作业内容与考核作业类似，且有不同要求。由于已经实现了部分代码，于是有部分更改
+>
+> 详情查看[更该部分](#更改部分)
+
 # 内容
 
 
@@ -6,28 +10,23 @@
 ## 目录
 
 > - [总览](#总览)
->
->     - [关系图解](#关系图解)
->
->     - [数据库设计](#数据库设计)
->
->     - [架构模式](#架构模式)
->
+>- [关系图解](#关系图解)
+>   
+>- [数据库设计](#数据库设计)
+>   
+>- [架构模式](#架构模式)
 > - [模型](#模型)
->- [Message](#Message)
->     
+> 	- [User](#User)
+>	- [Message](#Message)
 >- [配置](#配置)
-> 
->- [API列表](#API列表)
-> - [访问主页](#访问主页)
->    
->     - [发布言论](#发布言论)
->     
->     - [评论](#评论)
->     
->     - [点赞](#点赞)
->     
->     - [回复](#回复)
+> - [API列表](#API列表)
+>	- [访问主页](#访问主页)
+>	- [发布言论](#发布言论)
+>	- [评论](#评论)
+>	- [点赞](#点赞)
+>	- [回复](#回复)
+>	- [注册](#注册)
+>	- [登录](#登录)
 
 ## 总览
 
@@ -83,15 +82,26 @@ all==>pkg5(Routers)==>路由设置
 >
 > 也许是我太菜了吧。
 
+### User
+
+```go
+type User struct {
+	Uid uint `gorm:"primaryKey",binding:"required"`
+	Name string	`binding:"required"`//用户名
+	Pwd string `binding:"required"`//用户密码
+}
+```
+
 ### Message
 
 ```go
 type Message struct{
-    Like uint							  										//点赞数
-    Content string	`gorm:"string not null",binding:"required"`						//内容
-    ID uint								  										//自己的身份标识
-    Pid uint							  										//上一级ID
-    Kids []Message	`gorm:"-"`	 												 //子级
+	Like uint//点赞数
+	Content string `gorm:"string not null",binding:"required"`//内容
+	Mid uint `gorm:"primaryKey",binding:"required`//自己的身份标识
+	Pid uint//上一级ID
+	Kids []Message `gorm:"-"`//子级
+	Uid uint `binding:"required`//归属的用户
 }
 ```
 
@@ -123,7 +133,7 @@ type Message struct{
 
 | 方法 | 路由 |
 | :--: | :--: |
-| GET  |      |
+| GET  |  /   |
 
 **Query Params**
 
@@ -139,9 +149,9 @@ type Message struct{
 
 ### 发布言论
 
-| 方法 |  路由   |
-| :--: | :-----: |
-| POST | publish |
+| 方法 |   路由   |
+| :--: | :------: |
+| POST | /publish |
 
 **Query Params**
 
@@ -159,9 +169,9 @@ type Message struct{
 
 ### 评论
 
-| 方法 |  路由   |
-| :--: | :-----: |
-| POST | comment |
+| 方法 |   路由   |
+| :--: | :------: |
+| POST | /comment |
 
 **Query Params**
 
@@ -180,9 +190,9 @@ type Message struct{
 
 ### 点赞
 
-| 方法 | 路由 |
-| :--: | :--: |
-| POST | like |
+| 方法 | 路由  |
+| :--: | :---: |
+| POST | /like |
 
 **Query Params**
 
@@ -200,9 +210,9 @@ type Message struct{
 
 ### 回复
 
-| 方法 | 路由  |
-| :--: | :---: |
-| POST | reply |
+| 方法 |  路由  |
+| :--: | :----: |
+| POST | /reply |
 
 **Query Params**
 
@@ -216,3 +226,76 @@ type Message struct{
 | :-----: | :----: | :---------: |
 |   Pid   |  uint  |   上一级    |
 | Content | string | 回复的内容  |
+
+###注册
+
+| 方法 |   路由    |
+| :--: | :-------: |
+| POST | /register |
+
+**Query Params**
+
+| KEY  | VALUE | DESCRIPTION |
+| :--: | :---: | :---------: |
+| nil  |  nil  |     nil     |
+
+**form-data**
+
+| KEY  | VALUE  | DESCRIPTION |
+| :--: | :----: | :---------: |
+| Pwd  | string |  用户密码   |
+| Name | string |   用户名    |
+
+### 登录
+
+| 方法 |  路由  |
+| :--: | :----: |
+| POST | /login |
+
+**Query Params**
+
+| KEY  | VALUE | DESCRIPTION |
+| :--: | :---: | :---------: |
+| nil  |  nil  |     nil     |
+
+**form-data**
+
+| KEY  | VALUE  | DESCRIPTION |
+| :--: | :----: | :---------: |
+|Uid|int|用户ID|
+| Pwd  | string |  用户密码   |
+
+## 更改部分
+
+路径：
+
+```
+/Model/Message.go
+/Model/User.go
+/Middleware/*
+/Handler/*
+```
+
+> 使用空接口来适配\*gorm.DB与\*sql.DB两种数据库
+
+```
+/main.go
+```
+
+> 声明了两种数据库供使用
+
+```
+/Database/InitSQL.go
+```
+
+> 使用原始接口
+
+```
+/Model/Message.go 128行
+```
+
+> 在使用gorm时可使用并发,如果使用原生接口则会由于链接过多而报错
+
+吐槽一下：
+
+> 原生接口的scan传入的参数的顺序应和 结构定义时的成员顺序一致/desc命令输出的一致

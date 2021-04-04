@@ -1,17 +1,16 @@
 package Handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"net/http"
 	"MessageBoard/Model"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-func Comment(db *gorm.DB) gin.HandlerFunc {
+func Comment(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context){
 		var comment Model.Message
-		err := c.ShouldBind(&comment)//绑定参数
-		if err != nil {
+		//绑定参数
+		if err := c.ShouldBind(&comment);err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"method":  "POST",
 				"routing": "comment",
@@ -19,8 +18,15 @@ func Comment(db *gorm.DB) gin.HandlerFunc {
 			})
 			return
 		}
+		//获取用户ID
+		Uid,isExist:=c.Get("Uid")
+		if !isExist{//不存在
+			c.Redirect(http.StatusMovedPermanently,"/login")
+			return
+		}
+		comment.Uid=Uid.(int)
 		//回馈数据
-		Model.Save(&comment,db)
+		comment.Save(db)
 		tmp := Model.GetContent(db)
 		c.JSON(http.StatusOK,&tmp)
 	}

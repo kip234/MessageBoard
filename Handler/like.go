@@ -2,17 +2,15 @@ package Handler
 
 import (
 	"MessageBoard/Model"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
 
-func Like(db *gorm.DB) gin.HandlerFunc {
+func Like(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context){
 		Pid,ok:=c.GetPostForm("Pid")
-		fmt.Println(Pid)
+		//fmt.Println(Pid)
 		if !ok{
 			c.JSON(http.StatusOK, gin.H{
 				"method":  "POST",
@@ -37,7 +35,7 @@ func Like(db *gorm.DB) gin.HandlerFunc {
 			})
 			return
 		}
-		Model.Like(uint(id),db)
+		Model.Like(id,db)
 		tmp :=Model.GetContent(db)
 		c.JSON(http.StatusOK,&tmp)
 	}
