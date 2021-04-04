@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+//读取cookie
 func IsLogin(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user Model.User
@@ -42,6 +43,7 @@ func IsLogin(db interface{}) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		//保存信息供后续使用
 		c.Set("Uid",user.Uid)
 	}
 }

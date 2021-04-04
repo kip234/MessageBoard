@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const ConfPath = "conf.json"
+const ConfPath = "conf.json"//外部配置文件
 
 type Sql struct {
 	SqlName string		//数据库名

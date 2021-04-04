@@ -1,3 +1,5 @@
+//建立路由结构
+//为了便于测试几乎给每条路由都加了get方法
 package Routers
 
 import (

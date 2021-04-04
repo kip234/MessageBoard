@@ -9,6 +9,7 @@ import (
 
 const AvailableLimit = 60*10//登录有效时限(秒)
 
+//用户登录，成功后设置cookie
 func Login(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user Model.User

@@ -44,13 +44,15 @@ func (u *User)Save(db interface{}) (err error) {
 		err=value.Create(u).Error
 	}else if value,ok:=db.(*sql.DB);ok {
 		err=insertUser(value,u)
-		findUser(value,"Name="+"\""+u.Name+"\"",u)
+		findUser(value,"Name="+"\""+u.Name+"\"",u)//主要目的是为了返回新建用户的ID
 	}else {
 		err=fmt.Errorf("params wrong")
 	}
 	return
 }
 
+//根据提供的UID读取用户信息
+//主要用于密码比对
 func (u *User)Load(db interface{},uid int) (err error) {
 	if value,ok:=db.(*gorm.DB);ok{
 		err=value.Where("Uid=?",uid).Find(u).Error

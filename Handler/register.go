@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+//注册成狗后会返回UID
 func Register(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var user Model.User

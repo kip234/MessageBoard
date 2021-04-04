@@ -10,23 +10,21 @@
 ## 目录
 
 > - [总览](#总览)
->- [关系图解](#关系图解)
->   
->- [数据库设计](#数据库设计)
->   
->- [架构模式](#架构模式)
+> - [关系图解](#关系图解)
+> - [数据库设计](#数据库设计)
+> - [架构模式](#架构模式)
 > - [模型](#模型)
 > 	- [User](#User)
->	- [Message](#Message)
->- [配置](#配置)
+> 	- [Message](#Message)
+> - [配置](#配置)
 > - [API列表](#API列表)
->	- [访问主页](#访问主页)
->	- [发布言论](#发布言论)
->	- [评论](#评论)
->	- [点赞](#点赞)
->	- [回复](#回复)
->	- [注册](#注册)
->	- [登录](#登录)
+> 	- [访问主页](#访问主页)
+> 	- [发布言论](#发布言论)
+> 	- [评论](#评论)
+> 	- [点赞](#点赞)
+> 	- [回复](#回复)
+> 	- [注册](#注册)
+> 	- [登录](#登录)
 
 ## 总览
 
@@ -58,7 +56,11 @@ c((回复))
 
 ### 数据库设计
 
-> 全搁在一个表里面
+> 言论、评论、回复全搁在一个表里面
+>
+> 用户搁在另一个表里
+>
+> 这应该谈不上怎么设计吧(⊙o⊙)…
 
 ### 架构模式
 
@@ -72,6 +74,7 @@ all==>pkg2(Database)==>1(初始化数据库<br>好像流行用dao)
 all==>pkg3(Handler)==>处理器
 all==>pkg4(Model)==>模型
 all==>pkg5(Routers)==>路由设置
+all==>pkg6(Middleware)==>中间件
 ```
 
 
@@ -86,9 +89,9 @@ all==>pkg5(Routers)==>路由设置
 
 ```go
 type User struct {
-	Uid uint `gorm:"primaryKey",binding:"required"`
-	Name string	`binding:"required"`//用户名
-	Pwd string `binding:"required"`//用户密码
+	Uid int `gorm:"primaryKey"`
+	Name string	`gorm:"string not null"`//用户名
+	Pwd string `gorm:"string not null"`//用户密码
 }
 ```
 
@@ -96,12 +99,12 @@ type User struct {
 
 ```go
 type Message struct{
-	Like uint//点赞数
+	Like int//点赞数
 	Content string `gorm:"string not null",binding:"required"`//内容
-	Mid uint `gorm:"primaryKey",binding:"required`//自己的身份标识
-	Pid uint//上一级ID
-	Kids []Message `gorm:"-"`//子级
-	Uid uint `binding:"required`//归属的用户
+	Mid int `gorm:"primaryKey",binding:"required`//自己的身份标识
+	Pid int//上一级ID
+	Kids []Message `sql:"-",gorm:"-"`//子级
+	Uid int //归属的用户
 }
 ```
 

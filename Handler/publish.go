@@ -11,7 +11,7 @@ func Publish(db interface{}) gin.HandlerFunc {
 		var speech Model.Message
 		//:=c.PostForm("Content")
 		err := c.ShouldBind(&speech)
-		if err != nil {
+		if err != nil {//绑定失败
 			c.JSON(http.StatusOK, gin.H{
 				"method":  "POST",
 				"routing": "publish",
@@ -31,7 +31,7 @@ func Publish(db interface{}) gin.HandlerFunc {
 				return
 			}
 			speech.Uid=Uid.(int)
-			if tmp:=speech.Save(db);tmp!=nil{
+			if tmp:=speech.Save(db);tmp!=nil{//保存失败
 				c.JSON(http.StatusBadRequest, gin.H{
 					"method":  "POST",
 					"routing": "publish",

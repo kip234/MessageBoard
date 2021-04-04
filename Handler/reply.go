@@ -10,7 +10,7 @@ func Reply(db interface{}) gin.HandlerFunc {
 	return func(c *gin.Context){
 		var reply Model.Message
 		err := c.ShouldBind(&reply)
-		if err != nil {
+		if err != nil {//绑定失败
 			c.JSON(http.StatusOK, gin.H{
 				"method":  "POST",
 				"routing": "reply",
@@ -26,6 +26,7 @@ func Reply(db interface{}) gin.HandlerFunc {
 			}
 			reply.Uid=Uid.(int)
 			reply.Save(db)
+			//反馈信息
 			tmp:=Model.GetContent(db)
 			c.JSON(http.StatusOK, &tmp)
 		}

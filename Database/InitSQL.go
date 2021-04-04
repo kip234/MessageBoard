@@ -16,7 +16,7 @@ func InitSQL(SQL *config.Sql) *sql.DB {
 		fmt.Println("failed to open database:", err.Error())
 		return nil
 	}
-	err=db.Ping()
+	err=db.Ping()//测试链接是否有效
 	if err!=nil {
 		fmt.Println("failed to ping database:", err.Error())
 		return nil

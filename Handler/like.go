@@ -35,7 +35,8 @@ func Like(db interface{}) gin.HandlerFunc {
 			})
 			return
 		}
-		Model.Like(id,db)
+		Model.Like(id,db)//正式点赞
+		//信息反馈
 		tmp :=Model.GetContent(db)
 		c.JSON(http.StatusOK,&tmp)
 	}
