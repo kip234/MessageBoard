@@ -227,6 +227,8 @@ type Message struct{
 |   Pid   |  uint  |   上一级    |
 | Content | string | 回复的内容  |
 
+> - - - - - - + - - - - - >
+
 ###注册
 
 | 方法 |   路由    |
@@ -245,6 +247,8 @@ type Message struct{
 | :--: | :----: | :---------: |
 | Pwd  | string |  用户密码   |
 | Name | string |   用户名    |
+
+> - - - - - - + - - - - - >
 
 ### 登录
 
