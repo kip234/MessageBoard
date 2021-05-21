@@ -19,12 +19,20 @@
 > - [配置](#配置)
 > - [API列表](#API列表)
 > 	- [访问主页](#访问主页)
+> 	
 > 	- [发布言论](#发布言论)
+> 	
 > 	- [评论](#评论)
+> 	
 > 	- [点赞](#点赞)
+> 	
 > 	- [回复](#回复)
+> 	
 > 	- [注册](#注册)
+> 	
 > 	- [登录](#登录)
+> 	
+> - [不足？](#不足？)
 
 ## 总览
 
@@ -100,10 +108,10 @@ type User struct {
 ```go
 type Message struct{
 	Like int//点赞数
-	Content string `gorm:"string not null",binding:"required"`//内容
-	Mid int `gorm:"primaryKey",binding:"required`//自己的身份标识
+	Content string `gorm:"string not null" binding:"required"`//内容
+	Mid int `gorm:"primaryKey" binding:"required`//自己的身份标识
 	Pid int//上一级ID
-	Kids []Message `sql:"-",gorm:"-"`//子级
+	Kids []Message `sql:"-" gorm:"-"`//子级
 	Uid int //归属的用户
 }
 ```
@@ -271,6 +279,14 @@ type Message struct{
 | :--: | :----: | :---------: |
 |Uid|int|用户ID|
 | Pwd  | string |  用户密码   |
+
+## 不足？
+
+个人认为可能需要改进的地方
+
+> 1.Query Params始终为空，应该是项目体量太小了
+>
+> 2.handler本身没有实现并发
 
 ## 更改部分
 
