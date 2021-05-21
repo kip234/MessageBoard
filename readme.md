@@ -10,9 +10,10 @@
 ## 目录
 
 > - [总览](#总览)
-> - [关系图解](#关系图解)
-> - [数据库设计](#数据库设计)
-> - [架构模式](#架构模式)
+>     - [关系图解](#关系图解)
+>     - [数据库设计](#数据库设计)
+>     - [项目结构](#项目结构)
+>     - [大致流程](#大致流程)
 > - [模型](#模型)
 > 	- [User](#User)
 > 	- [Message](#Message)
@@ -38,28 +39,13 @@
 
 ### 关系图解
 
-> 额…虽然图是这么画的，不过在写代码的时候 评论和回复 都没有对象的限制
-
-
-```mermaid
-graph TD
-
-free2[行为]==>free1((对象))
-
-a((言论))
-b((评论))
-c((回复))
-
-发布言论==>a
-
-评论==>a
-
-点赞==>a
-点赞==>b
-点赞==>c
-
-回复==>b
-回复==>c
+```sequence
+Title:模型间关系
+用户->言论/评论/回复:发布(言论/评论/回复)
+用户->言论/评论/回复:评论(言论/评论/回复)
+用户->言论/评论/回复:赞一个(言论/评论/回复)
+用户->言论/评论/回复:回复(言论/评论/回复)
+Note left of 言论/评论/回复:(言论/评论/回复)使用同一个模型:Message
 ```
 
 ### 数据库设计
@@ -70,28 +56,40 @@ c((回复))
 >
 > 这应该谈不上怎么设计吧(⊙o⊙)…
 
-### 架构模式
-
-> 额，好吧，我不知道属于哪类
+### 项目结构
 
 ```mermaid
 graph TD
 all(pkgs)
 all==>pkg1(config)==>处理JSON配置
-all==>pkg2(Database)==>1(初始化数据库<br>好像流行用dao)
+all==>pkg2(Database)==>1(初始化数据库)
 all==>pkg3(Handler)==>处理器
 all==>pkg4(Model)==>模型
 all==>pkg5(Routers)==>路由设置
 all==>pkg6(Middleware)==>中间件
 ```
 
+### 大致流程
 
+```mermaid
+sequenceDiagram
+	title:业务流程
+	用户->home: 可直接访问
+	Note right of home:home:<br>默认输出所有记录
+	用户->login(登录):登录
+	用户->register(注册):注册
+	Note over home,register(注册):未登录
+	islogin->publish(发布):发布想法
+	islogin->comment(评论):评论
+	islogin->like(赞):赞
+	islogin->reply(回复):回复
+	Note over publish(发布),reply(回复):已成功登录
+	loop 登录校验
+		用户-->islogin: 兄嘚，登录呀先！
+	end
+```
 
 ## 模型
-
-> 经过多次尝试最终决定存在一个表里面
->
-> 也许是我太菜了吧。
 
 ### User
 
