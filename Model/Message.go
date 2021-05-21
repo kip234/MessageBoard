@@ -10,10 +10,10 @@ import (
 
 type Message struct{
 	Like int//点赞数
-	Content string `gorm:"string not null",binding:"required"`//内容
-	Mid int `gorm:"primaryKey",binding:"required`//自己的身份标识
+	Content string `gorm:"string not null" binding:"required"`//内容
+	Mid int `gorm:"primaryKey" binding:"required`//自己的身份标识
 	Pid int//上一级ID
-	Kids []Message `sql:"-",gorm:"-"`//子级
+	Kids []Message `sql:"-" gorm:"-"`//子级
 	Uid int //归属的用户
 }
 
@@ -123,7 +123,13 @@ func buildTree(id int,root *Message,db interface{}) {
 	}
 	for i,_:=range root.Kids{
 		wg.Add(1)
-		/*go*/func() {//=================递归并发===好想吹一手
+		/*go*/ func() {//=================递归并发===好想吹一手
+			//47.3048ms gorm不并发
+			//64.1708ms gorm并发
+			//32.9072ms 原生不并发
+			//49.657ms 原生并发
+			//database/sql/driver 级别的Conn,Stmt都是非并发安全的
+			//database/sql 级别的DB,Stmt都是并发安全的，因为内部实现了连接池和锁
 			defer wg.Done()
 			buildTree(root.Kids[i].Mid, &root.Kids[i], db)
 		}()
