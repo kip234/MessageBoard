@@ -1,16 +1,16 @@
 package main
 
 import (
-	"MessageBoard/Database"
 	"MessageBoard/Routers"
 	"MessageBoard/config"
+	"MessageBoard/services/DC"
 )
 
 func main()  {
 	conf:=config.Init()//获取服务器配置
-	db:=Database.InitGorm(&conf.Sql)//使用gorm
-	//db:=Database.InitSQL(&conf.Sql)//使用原生sql接口
-
-	server:=Routers.BuildRouter(db)
+	DC.InitGorm(&conf.Sql)
+	go DC.Run()
+	DCClient:=DC.NewClient()
+	server:=Routers.BuildRouter(DCClient)
 	server.Run(conf.Addr)
 }

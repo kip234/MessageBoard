@@ -1,23 +1,20 @@
 package Middleware
 
 import (
-	"MessageBoard/Model"
+	"MessageBoard/services/DC"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"net/rpc"
 	"strconv"
 )
 
 //读取cookie
-func IsLogin(db interface{}) gin.HandlerFunc {
+func IsLogin(DCClient *rpc.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var user Model.User
+		var user DC.User
+		var ok bool
 		Uid,err:=c.Cookie("Uid")
 		if err!=nil{//没有登录
-			/*c.JSON(http.StatusOK,gin.H{
-				"method":  "POST",
-				"routing": "isLogin",
-				"Error":err.Error(),
-			})*/
 			c.Redirect(http.StatusMovedPermanently,"/login")
 			c.Abort()
 			return
@@ -30,16 +27,15 @@ func IsLogin(db interface{}) gin.HandlerFunc {
 				"Uid":Uid,
 				"Error":err.Error(),
 			})
-			//c.Redirect(http.StatusMovedPermanently,"/login")
 			c.Abort()
 			return
-		}else if !user.IsExist(db){//用户不存在
+		}else if err=DCClient.Call("User.IsExist",user,&ok);err!=nil{//用户不存在
 			c.JSON(http.StatusOK,gin.H{
 				"method":  "POST",
 				"routing": "isLogin",
 				"Error":"unknown user !",
+				"errorinfo":err.Error(),
 			})
-			//c.Redirect(http.StatusMovedPermanently,"/register")
 			c.Abort()
 			return
 		}

@@ -1,14 +1,15 @@
 package Handler
 
 import (
-	"MessageBoard/Model"
+	"MessageBoard/services/DC"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"net/rpc"
 )
 
-func Reply(db interface{}) gin.HandlerFunc {
+func Reply(DCClient *rpc.Client) gin.HandlerFunc {
 	return func(c *gin.Context){
-		var reply Model.Message
+		var reply DC.Message
 		err := c.ShouldBind(&reply)
 		if err != nil {//绑定失败
 			c.JSON(http.StatusOK, gin.H{
@@ -25,9 +26,12 @@ func Reply(db interface{}) gin.HandlerFunc {
 				return
 			}
 			reply.Uid=Uid.(int)
-			reply.Save(db)
+			DCClient.Call("Message.Save",reply,&DC.Message{})
+			//reply.Save(db)
 			//反馈信息
-			tmp:=Model.GetContent(db)
+			var tmp []DC.Message
+			DCClient.Call("Message.GetContent",&DC.Message{},&tmp)
+			//tmp:= DC.GetContent(db)
 			c.JSON(http.StatusOK, &tmp)
 		}
 	}

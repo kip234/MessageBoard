@@ -7,14 +7,15 @@ import (
 	"MessageBoard/Middleware"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"net/rpc"
 )
 
-func BuildRouter(db interface{}) *gin.Engine {
+func BuildRouter(DCClient *rpc.Client) *gin.Engine {
 	server:=gin.Default()
 
-	group:=server.Group("/",Middleware.IsLogin(db))
+	group:=server.Group("/",Middleware.IsLogin(DCClient))
 	{
-		group.POST("/publish", Handler.Publish(db))
+		group.POST("/publish", Handler.Publish(DCClient))
 		group.GET("/publish", func(c *gin.Context) {
 			c.JSON(http.StatusOK,gin.H{
 				"method":  "GET",
@@ -22,7 +23,7 @@ func BuildRouter(db interface{}) *gin.Engine {
 			})
 		})
 
-		group.POST("/comment", Handler.Comment(db))
+		group.POST("/comment", Handler.Comment(DCClient))
 		group.GET("/comment", func(c *gin.Context) {
 			c.JSON(http.StatusOK,gin.H{
 				"method":  "GET",
@@ -30,7 +31,7 @@ func BuildRouter(db interface{}) *gin.Engine {
 			})
 		})
 
-		group.POST("/like", Handler.Like(db))
+		group.POST("/like", Handler.Like(DCClient))
 		group.GET("/like", func(c *gin.Context) {
 			c.JSON(http.StatusOK,gin.H{
 				"method":  "GET",
@@ -38,7 +39,7 @@ func BuildRouter(db interface{}) *gin.Engine {
 			})
 		})
 
-		group.POST("/reply", Handler.Reply(db))
+		group.POST("/reply", Handler.Reply(DCClient))
 		group.GET("/reply", func(c *gin.Context) {
 			c.JSON(http.StatusOK,gin.H{
 				"method":  "GET",
@@ -47,7 +48,7 @@ func BuildRouter(db interface{}) *gin.Engine {
 		})
 	}
 
-	server.POST("/register",Handler.Register(db))
+	server.POST("/register",Handler.Register(DCClient))
 	server.GET("/register",func(c *gin.Context) {
 		c.JSON(http.StatusOK,gin.H{
 			"method":  "GET",
@@ -55,7 +56,7 @@ func BuildRouter(db interface{}) *gin.Engine {
 		})
 	})
 
-	server.POST("/login",Handler.Login(db))
+	server.POST("/login",Handler.Login(DCClient))
 	server.GET("/login",func(c *gin.Context) {
 		c.JSON(http.StatusOK,gin.H{
 			"method":  "GET",
@@ -63,7 +64,7 @@ func BuildRouter(db interface{}) *gin.Engine {
 		})
 	})
 
-	server.GET("/",Handler.Home(db))
+	server.GET("/",Handler.Home(DCClient))
 
 	return server
 

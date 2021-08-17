@@ -1,15 +1,15 @@
 package Handler
 
 import (
-	"MessageBoard/Model"
+	"MessageBoard/services/DC"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"net/rpc"
 )
 
-func Publish(db interface{}) gin.HandlerFunc {
+func Publish(DCClient *rpc.Client) gin.HandlerFunc {
 	return func(c *gin.Context){
-		var speech Model.Message
-		//:=c.PostForm("Content")
+		var speech DC.Message
 		err := c.ShouldBind(&speech)
 		if err != nil {//绑定失败
 			c.JSON(http.StatusOK, gin.H{
@@ -31,7 +31,8 @@ func Publish(db interface{}) gin.HandlerFunc {
 				return
 			}
 			speech.Uid=Uid.(int)
-			if tmp:=speech.Save(db);tmp!=nil{//保存失败
+			tmp:=DCClient.Call("Message.Save",speech,&DC.Message{})
+			if tmp!=nil{//保存失败
 				c.JSON(http.StatusBadRequest, gin.H{
 					"method":  "POST",
 					"routing": "publish",
@@ -40,8 +41,8 @@ func Publish(db interface{}) gin.HandlerFunc {
 				return
 			}
 		}
-
-		tmp:=Model.GetContent(db)
+		var tmp []DC.Message
+		DCClient.Call("Message.GetContent",DC.Message{},&tmp)
 		c.JSON(http.StatusOK,&tmp)
 	}
 }

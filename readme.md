@@ -1,6 +1,6 @@
-> 前情提要：由于某次阶段作业内容与考核作业类似，且有不同要求。由于已经实现了部分代码，于是有部分更改
+> 使用了RPC包，但最后用协程来模拟
 >
-> 详情查看[更该部分](#更改部分)
+> services/DC/Global.go:15 + main.go:12
 
 # 内容
 
@@ -62,9 +62,8 @@ Note left of 言论/评论/回复:(言论/评论/回复)使用同一个模型:Me
 graph TD
 all(pkgs)
 all==>pkg1(config)==>处理JSON配置
-all==>pkg2(Database)==>1(初始化数据库)
 all==>pkg3(Handler)==>处理器
-all==>pkg4(Model)==>模型
+all==>pkg4(services)==>服务
 all==>pkg5(Routers)==>路由设置
 all==>pkg6(Middleware)==>中间件
 ```
@@ -89,9 +88,13 @@ sequenceDiagram
 	end
 ```
 
-## 模型
+## 服务
 
-### User
+> 只剥离了数据交互部分(DC)，美其名曰：数据中心
+
+### 模型
+
+#### User
 
 ```go
 type User struct {
@@ -101,7 +104,7 @@ type User struct {
 }
 ```
 
-### Message
+#### Message
 
 ```go
 type Message struct{
@@ -278,45 +281,4 @@ type Message struct{
 |Uid|int|用户ID|
 | Pwd  | string |  用户密码   |
 
-## 不足
 
-个人认为可能需要改进的地方
-
-> 1.Query Params始终为空，应该是项目体量太小了
->
-> 2.handler本身没有实现并发
-
-## 更改部分
-
-路径：
-
-```
-/Model/Message.go
-/Model/User.go
-/Middleware/*
-/Handler/*
-```
-
-> 使用空接口来适配\*gorm.DB与\*sql.DB两种数据库
-
-```
-/main.go
-```
-
-> 声明了两种数据库供使用
-
-```
-/Database/InitSQL.go
-```
-
-> 使用原始接口
-
-```
-/Model/Message.go 128行
-```
-
-> 在使用gorm时可使用并发,如果使用原生接口则会由于链接过多而报错
-
-吐槽一下：
-
-> 原生接口的scan传入的参数的顺序应和 结构定义时的成员顺序一致/desc命令输出的一致
